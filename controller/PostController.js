@@ -6,7 +6,6 @@ exports.CreatePost = async (req, res, next) => {
   const { title, description, visibility, imageUrl, category } = req.body;
   const errors = validationResult(req);
 
-  console.log(req.body, "sdds");
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
@@ -72,7 +71,7 @@ exports.editPost = async (req, res, next) => {
         upsert: true,
       });
     } else {
-      const error = new Error("Password doesn't match");
+      const error = new Error("Post not found");
       error.statusCode = 401;
       next(error);
     }

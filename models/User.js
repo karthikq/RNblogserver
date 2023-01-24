@@ -23,6 +23,11 @@ const UserSchema = new mongoose.Schema(
       type: String,
     },
     date: String,
+    favArticles: [
+      {
+        postId: mongoose.Schema.Types.ObjectId,
+      },
+    ],
   },
   {
     timestamps: true,
