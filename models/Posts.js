@@ -16,7 +16,7 @@ const PostSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
     },
-
+    postId: String,
     category: String,
 
     postcreated_at: {

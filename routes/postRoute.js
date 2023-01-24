@@ -20,12 +20,17 @@ route.post(
   isAuth,
   body("title")
     .trim()
-    .isLength({ min: 2 })
-    .withMessage("Title must be 2 chracters long")
+    .isLength({ min: 5, max: 25 })
+    .withMessage("Title must have 5 & less than 25 char's")
     .escape(),
   body("description").trim().escape(),
-  body("visibilty").notEmpty().withMessage("this field must not be empty"),
-  body("category").notEmpty().withMessage("this field is required"),
+  body("visibility").notEmpty().withMessage("this field must not be empty"),
+  body("category")
+    .trim()
+    .isLength({ min: 5, max: 12 })
+    .withMessage("Category must have 5 & less than 12 char's")
+    .notEmpty()
+    .withMessage("this field is required"),
   body("imageUrl").notEmpty().withMessage("this field is required"),
   CreatePost
 );

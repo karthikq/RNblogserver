@@ -1,11 +1,16 @@
 const Post = require("../models/Posts");
 const moment = require("moment");
 const { v4: nanoid } = require("uuid");
-
+const { validationResult } = require("express-validator");
 exports.CreatePost = async (req, res, next) => {
-  const { title, description, visibility, imageUrl } = req.body;
+  const { title, description, visibility, imageUrl, category } = req.body;
+  const errors = validationResult(req);
 
-  if (!title || !description || !visibility || !imageUrl) {
+  console.log(req.body, "sdds");
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  if (!title || !description || !visibility || !imageUrl || !category) {
     const error = new Error("All fields are required");
     error.statusCode = 400;
     next(error);
@@ -23,6 +28,7 @@ exports.CreatePost = async (req, res, next) => {
     user: req.user,
     visibility,
     imageUrl,
+    category,
   });
   try {
     const createdPost = await newPost.save();
