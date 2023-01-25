@@ -11,7 +11,9 @@ const Post = require("../models/Posts");
 const route = express.Router();
 
 route.get("/all", async (req, res, next) => {
-  const allPosts = await Post.find({}).sort({ createdAt: 1 });
+  const allPosts = await Post.find({})
+    .sort({ createdAt: 1 })
+    .sort({ createdAt: 1 });
   return res.status(200).json({ data: allPosts });
 });
 
