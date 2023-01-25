@@ -4,6 +4,7 @@ const {
   CreatePost,
   deletePost,
   editPost,
+  getPost,
 } = require("../controller/PostController");
 const { isAuth } = require("../middleware/isAuth");
 const Post = require("../models/Posts");
@@ -11,9 +12,8 @@ const Post = require("../models/Posts");
 const route = express.Router();
 
 route.get("/all", async (req, res, next) => {
-  const allPosts = await Post.find({})
-    .sort({ createdAt: 1 })
-    .sort({ createdAt: 1 });
+  const allPosts = await Post.find({});
+
   return res.status(200).json({ data: allPosts });
 });
 
@@ -51,5 +51,5 @@ route.patch(
   body("category").notEmpty().withMessage("this field is required"),
   editPost
 );
-
+route.get("/:postId", getPost);
 module.exports = route;

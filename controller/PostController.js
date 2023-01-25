@@ -82,3 +82,18 @@ exports.editPost = async (req, res, next) => {
     next(error);
   }
 };
+exports.getPost = async (req, res) => {
+  const { postId } = req.params;
+
+  try {
+    const findPost = await Post.findOne({ postId: postId });
+
+    if (!findPost) {
+      return res.status(404).status({ json: "item not found" });
+    } else {
+      return res.status(200).json(findPost);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
