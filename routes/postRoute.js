@@ -27,8 +27,8 @@ route.post(
   body("visibility").notEmpty().withMessage("this field must not be empty"),
   body("category")
     .trim()
-    .isLength({ min: 5, max: 20 })
-    .withMessage("Category must have 5 & less than 20 char's")
+    .isLength({ min: 2, max: 20 })
+    .withMessage("Category must have 2 & less than 20 char's")
     .notEmpty()
     .withMessage("this field is required"),
   body("imageUrl").notEmpty().withMessage("this field is required"),
