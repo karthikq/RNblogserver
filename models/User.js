@@ -59,6 +59,7 @@ UserSchema.methods.comparePassword = function (userPassword) {
     if (err) {
       return err;
     }
+
     if (result) {
       return true;
     } else {

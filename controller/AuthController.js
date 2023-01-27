@@ -7,40 +7,49 @@ const jwt = require("jsonwebtoken");
 
 exports.loginRoute = async (req, res, next) => {
   const { email, password } = req.body;
-
+  console.log(req.body);
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
-  const CheckUser = await User.findOne({ email }).select("+password");
-  if (!CheckUser) {
-    const error = new Error("User Not found");
-    error.statusCode = 401;
-    throw error;
+
+  try {
+    const CheckUser = await User.findOne({ email }).select("+password");
+    if (!CheckUser) {
+      const error = new Error("Email Not found");
+      error.statusCode = 401;
+      next(error);
+    }
+    const checkPassword = CheckUser.comparePassword(password);
+
+    if (!checkPassword) {
+      const error = new Error("Invalid Credentials");
+      error.statusCode = 401;
+      next(error);
+    }
+    const userId = CheckUser.userId;
+
+    const token = jwt.sign({ email, userId }, process.env.JWT_SECRECT, {
+      expiresIn: "24hr",
+    });
+
+    return res.status(200).json({
+      message: "user created",
+      token,
+      userdata: CheckUser,
+    });
+  } catch (error) {
+    if (!error.statusCode) {
+      error.statusCode = 500;
+    }
+    console.log(error);
+    next(error);
   }
-  const checkPassword = User.comparePassword(password);
-
-  if (!checkPassword) {
-    const error = new Error("Password doesn't match");
-    error.statusCode = 401;
-    throw error;
-  }
-  const userId = CheckUser.userId;
-
-  const token = jwt.sign({ email, userId }, process.env.JWT_SECRECT, {
-    expiresIn: "24hr",
-  });
-
-  return res.status(200).json({
-    message: "user created",
-    token,
-    CheckUser,
-  });
 };
 exports.singUpRoute = async (req, res, next) => {
   const { email, password, username } = req.body;
-
+  console.log(req.body);
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -52,7 +61,7 @@ exports.singUpRoute = async (req, res, next) => {
   const CheckUser = await User.findOne({ email });
 
   if (CheckUser) {
-    const error = new Error("User already exists");
+    const error = new Error("Email already exists");
     error.statusCode = 401;
     next(error);
   }
@@ -78,7 +87,7 @@ exports.singUpRoute = async (req, res, next) => {
     userdata.password = "";
     delete userdata.password;
 
-    return res.status(200).json({
+    return res.status(201).json({
       message: "user created",
       token,
       userdata,
