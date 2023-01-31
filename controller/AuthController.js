@@ -15,29 +15,33 @@ exports.loginRoute = async (req, res, next) => {
   }
 
   try {
-    const CheckUser = await User.findOne({ email }).select("+password");
+    const CheckUser = await User.findOne({ email }).select("+password").exec();
     if (!CheckUser) {
       const error = new Error("Email Not found");
       error.statusCode = 401;
-      next(error);
+      throw error;
     }
-    const checkPassword = CheckUser.comparePassword(password);
+    CheckUser.comparePassword(password, (err, isMatch) => {
+      if (err) {
+        const error = new Error("Invalid Credentials");
+        error.statusCode = 401;
+        throw error;
+      }
+      if (!isMatch) {
+        const error = new Error("Invalid Credentials");
+        error.statusCode = 401;
+        throw error;
+      }
+      const userId = CheckUser.userId;
+      const token = jwt.sign({ email, userId }, process.env.JWT_SECRECT, {
+        expiresIn: "24hr",
+      });
 
-    if (!checkPassword) {
-      const error = new Error("Invalid Credentials");
-      error.statusCode = 401;
-      next(error);
-    }
-    const userId = CheckUser.userId;
-
-    const token = jwt.sign({ email, userId }, process.env.JWT_SECRECT, {
-      expiresIn: "24hr",
-    });
-
-    return res.status(200).json({
-      message: "user created",
-      token,
-      userdata: CheckUser,
+      return res.status(200).json({
+        message: "user created",
+        token,
+        userdata: CheckUser,
+      });
     });
   } catch (error) {
     if (!error.statusCode) {

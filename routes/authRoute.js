@@ -9,7 +9,6 @@ route.post(
   body("password")
     .isLength({ min: 5 })
     .withMessage("Password must be 5 character's long"),
-
   loginRoute
 );
 route.post(
