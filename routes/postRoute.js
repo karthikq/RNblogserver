@@ -30,6 +30,7 @@ route.post(
   body("category")
     .trim()
     .isLength({ min: 2, max: 20 })
+    .toLowerCase()
     .withMessage("Category must have 2 & less than 20 char's")
     .notEmpty()
     .withMessage("this field is required"),
@@ -52,4 +53,5 @@ route.patch(
   editPost
 );
 route.get("/:postId", getPost);
+
 module.exports = route;

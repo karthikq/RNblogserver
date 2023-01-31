@@ -5,7 +5,11 @@ const { body, validationResult } = require("express-validator");
 
 route.post(
   "/login",
-  body("email").isEmail().withMessage("Email is not valid").normalizeEmail(),
+  body("email")
+    .isEmail()
+    .toLowerCase()
+    .withMessage("Email is not valid")
+    .normalizeEmail(),
   body("password")
     .isLength({ min: 5 })
     .withMessage("Password must be 5 character's long"),
@@ -13,7 +17,11 @@ route.post(
 );
 route.post(
   "/signup",
-  body("email").isEmail().withMessage("Email is not valid").normalizeEmail(),
+  body("email")
+    .isEmail()
+    .toLowerCase()
+    .withMessage("Email is not valid")
+    .normalizeEmail(),
   body("username").trim().escape(),
   body("password")
     .isLength({ min: 5 })

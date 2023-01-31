@@ -10,6 +10,7 @@ Connection();
 
 app.use("/auth", require("./routes/authRoute"));
 app.use("/post", require("./routes/postRoute"));
+app.use("/user", require("./routes/userRoute"));
 
 app.use((error, req, res, next) => {
   const status = error.statusCode || 500;

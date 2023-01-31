@@ -2,6 +2,7 @@ const Post = require("../models/Posts");
 const moment = require("moment");
 const { v4: nanoid } = require("uuid");
 const { validationResult } = require("express-validator");
+const User = require("../models/User");
 exports.CreatePost = async (req, res, next) => {
   const { title, description, visibility, imageUrl, category } = req.body;
   const errors = validationResult(req);
@@ -89,7 +90,7 @@ exports.getPost = async (req, res) => {
     const findPost = await Post.findOne({ postId: postId });
 
     if (!findPost) {
-      return res.status(404).status({ json: "item not found" });
+      return res.status(404).status({ message: "item not found" });
     } else {
       return res.status(200).json(findPost);
     }
