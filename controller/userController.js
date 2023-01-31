@@ -1,15 +1,36 @@
 const Post = require("../models/Posts");
 const User = require("../models/User");
 
-exports.addTofav = async (req, res) => {
+exports.addTofav = async (req, res, next) => {
   const { postId } = req.params;
+  console.log(postId, req.user.userId);
   try {
-    const findPost = await Post.findOne({ postId: postId });
+    const findPost = await Post.findOne({ _id: postId });
 
     if (!findPost) {
       return res.status(404).status({ json: "item not found" });
     } else {
-      const res = await User.findOneAndUpdate(
+      if (req.user?.favArticles.length > 0) {
+        const checkUserAlreadyadded = req.user.favArticles.find(
+          (el) => el.postId.toString() === postId
+        );
+        if (checkUserAlreadyadded) {
+          const removeUser = await User.findOneAndUpdate(
+            { userId: req.user.userId },
+            {
+              $pull: { favArticles: { postId } },
+            },
+            {
+              new: true,
+            }
+          );
+
+          return res
+            .status(201)
+            .json({ message: "removed", userdata: removeUser });
+        }
+      }
+      const result = await User.findOneAndUpdate(
         { userId: req.user.userId },
         {
           $push: { favArticles: { postId } },
@@ -18,10 +39,11 @@ exports.addTofav = async (req, res) => {
           new: true,
         }
       );
-      console.log(res);
-      return res.status(201).json({ message: "Added", userdata: res });
+
+      return res.status(201).json({ message: "Added", userdata: result });
     }
   } catch (error) {
+    console.log(error);
     if (!error.statusCode) {
       error.statusCode = 500;
     }
