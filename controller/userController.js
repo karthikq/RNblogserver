@@ -23,7 +23,9 @@ exports.addTofav = async (req, res, next) => {
             {
               new: true,
             }
-          );
+          )
+            .populate("favArticles.postId")
+            .exec();
 
           return res
             .status(201)
@@ -38,7 +40,9 @@ exports.addTofav = async (req, res, next) => {
         {
           new: true,
         }
-      );
+      )
+        .populate("favArticles.postId")
+        .exec();
 
       return res.status(201).json({ message: "Added", userdata: result });
     }
@@ -55,8 +59,10 @@ exports.getUserData = async (req, res, next) => {
   const { userId } = req.params;
 
   try {
-    const findUser = await User.findOne({ userId });
-
+    const findUser = await User.findOne({ userId })
+      .populate("favArticles.postId")
+      .exec();
+    console.log(findUser);
     if (!findUser) {
       return res.status(400).json({ message: "User not found" });
     } else {

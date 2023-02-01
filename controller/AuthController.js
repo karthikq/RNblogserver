@@ -15,7 +15,10 @@ exports.loginRoute = async (req, res, next) => {
   }
 
   try {
-    const CheckUser = await User.findOne({ email }).select("+password").exec();
+    const CheckUser = await User.findOne({ email })
+      .select("+password")
+      .populate("favArticles.postId")
+      .exec();
     if (!CheckUser) {
       const error = new Error("Email Not found");
       error.statusCode = 401;

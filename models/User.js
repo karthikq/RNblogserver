@@ -25,7 +25,7 @@ const UserSchema = new mongoose.Schema(
     date: String,
     favArticles: [
       {
-        postId: mongoose.Schema.Types.ObjectId,
+        postId: { type: mongoose.Schema.Types.ObjectId, ref: "Post" },
       },
     ],
   },

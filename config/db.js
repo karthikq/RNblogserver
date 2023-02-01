@@ -5,7 +5,9 @@ async function Connection() {
     await mongoose.connect(
       `mongodb+srv://testuser:${process.env.MONGO_PASS}@cluster0.44gx5.mongodb.net/reactnativeblog`
     );
-    mongoose.set("strictQuery", true);
+    mongoose.set("strictQuery", false);
+    mongoose.set("strictPopulate", false);
+
     mongoose.connection.on("connected", () => {
       console.log("Coonected to database");
     });
