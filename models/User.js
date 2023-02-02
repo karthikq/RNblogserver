@@ -11,6 +11,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
       select: false,
     },
+    userImage: String,
     username: {
       type: String,
       required: true,

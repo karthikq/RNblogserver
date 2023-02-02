@@ -85,6 +85,7 @@ exports.singUpRoute = async (req, res, next) => {
       userId,
       usercreated_at,
       date,
+      userImage: "https://fastly.picsum.photos/id/167/200/300.jpg",
     });
     let userdata = await newUser.save();
     const token = jwt.sign({ email, userId }, process.env.JWT_SECRECT, {
