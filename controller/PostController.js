@@ -64,7 +64,7 @@ exports.deletePost = async (req, res, next) => {
 exports.editPost = async (req, res, next) => {
   const { postId } = req.body;
   try {
-    const findPost = await Post.findOne({ postId });
+    const findPost = await Post.findOne({ postId }).populate("user").exec();
     if (findPost) {
       Object.assign(findPost, req.body);
       await Post.findOneAndUpdate({ postId }, findPost, {
@@ -87,8 +87,10 @@ exports.getPost = async (req, res) => {
   const { postId } = req.params;
 
   try {
-    const findPost = await Post.findOne({ postId: postId });
-
+    const findPost = await Post.findOne({ postId: postId })
+      .populate("user")
+      .exec();
+    console.log(findPost);
     if (!findPost) {
       return res.status(404).status({ message: "item not found" });
     } else {
