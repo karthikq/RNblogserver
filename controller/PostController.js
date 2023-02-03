@@ -4,7 +4,8 @@ const { v4: nanoid } = require("uuid");
 const { validationResult } = require("express-validator");
 const User = require("../models/User");
 exports.CreatePost = async (req, res, next) => {
-  const { title, description, visibility, imageUrl, category } = req.body;
+  const { title, description, visibility, imageUrl, category, resizeMode } =
+    req.body;
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -29,6 +30,7 @@ exports.CreatePost = async (req, res, next) => {
     visibility,
     imageUrl,
     category,
+    resizeMode: resizeMode ? resizeMode : "cover",
   });
   try {
     const createdPost = await newPost.save();

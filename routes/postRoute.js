@@ -35,6 +35,7 @@ route.post(
     .notEmpty()
     .withMessage("this field is required"),
   body("imageUrl").notEmpty().withMessage("this field is required"),
+  body("resizeMode"),
   CreatePost
 );
 
