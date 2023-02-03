@@ -24,6 +24,8 @@ const UserSchema = new mongoose.Schema(
       type: String,
     },
     date: String,
+    resetToken: String,
+    resetTokenExpirationDate: String,
     favArticles: [
       {
         postId: { type: mongoose.Schema.Types.ObjectId, ref: "Post" },

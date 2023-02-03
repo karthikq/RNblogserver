@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const Connection = require("./config/db");
-const { sendEmail } = require("./sendEmail");
+const Mailer = require("./mail/Mailer");
 
 const app = express();
 const PORT = process.env.PORT || 5000;

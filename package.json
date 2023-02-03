@@ -19,6 +19,8 @@
     "moment": "^2.29.4",
     "mongoose": "^6.8.4",
     "nanoid": "^2.1.11",
+    "nodemailer": "^6.9.1",
+    "otp-generator": "^4.0.1",
     "sib-api-v3-sdk": "^8.5.0",
     "uuid": "^9.0.0"
   }
