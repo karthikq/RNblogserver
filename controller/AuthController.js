@@ -22,35 +22,40 @@ exports.loginRoute = async (req, res, next) => {
     if (!CheckUser) {
       const error = new Error("Email Not found");
       error.statusCode = 401;
+      error.type = "email";
       throw error;
     }
-    CheckUser.comparePassword(password, (err, isMatch) => {
-      if (err) {
-        const error = new Error("Invalid Credentials");
-        error.statusCode = 401;
-        throw error;
-      }
-      if (!isMatch) {
-        const error = new Error("Invalid Credentials");
-        error.statusCode = 401;
-        throw error;
-      }
-      const userId = CheckUser.userId;
-      const token = jwt.sign({ email, userId }, process.env.JWT_SECRECT, {
-        expiresIn: "24hr",
-      });
+    await CheckUser.comparePassword(password, (err, isMatch) => {
+      try {
+        if (!isMatch) {
+          const error = new Error("Invalid Credentials");
+          error.statusCode = 401;
+          error.type = "password";
+          throw error;
+        }
+        const userId = CheckUser.userId;
+        const token = jwt.sign({ email, userId }, process.env.JWT_SECRECT, {
+          expiresIn: "24hr",
+        });
 
-      return res.status(200).json({
-        message: "user created",
-        token,
-        userdata: CheckUser,
-      });
+        return res.status(200).json({
+          message: "user created",
+          token,
+          userdata: CheckUser,
+        });
+      } catch (error) {
+        if (!error.statusCode) {
+          error.statusCode = 500;
+        }
+
+        next(error);
+      }
     });
   } catch (error) {
     if (!error.statusCode) {
       error.statusCode = 500;
     }
-    console.log(error);
+
     next(error);
   }
 };
@@ -64,20 +69,29 @@ exports.singUpRoute = async (req, res, next) => {
   if (!email || !password || !username) {
     return res.status(400).json({ message: "All field are required" });
   }
-
-  const CheckUser = await User.findOne({ email });
-
-  if (CheckUser) {
-    const error = new Error("Email already exists");
-    error.statusCode = 401;
-    next(error);
-  }
-
-  const userId = nanoid();
-  const usercreated_at = new Date().toISOString();
-  const date = moment().format("MMM Do YY");
-
   try {
+    const CheckUser = await User.findOne({ email });
+
+    if (CheckUser) {
+      const error = new Error("Email already exists");
+      error.statusCode = 401;
+      error.type = "email";
+      throw error;
+    }
+
+    const checkUserName = await User.findOne({ username });
+
+    if (checkUserName) {
+      const error = new Error("Username already exist's");
+      error.statusCode = 400;
+      error.type = "username";
+      throw error;
+    }
+
+    const userId = nanoid();
+    const usercreated_at = new Date().toISOString();
+    const date = moment().format("MMM Do YY");
+
     const newUser = new User({
       email,
       password,

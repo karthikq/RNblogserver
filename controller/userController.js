@@ -188,7 +188,7 @@ exports.resetPassoword = async (req, res, next) => {
 
 exports.updateUser = async (req, res, next) => {
   const userId = req.body.userId;
-  console.log(req.body, "asdsd");
+
   const { username, phone, userImage, gender } = req.body;
   try {
     const findUser = await User.findOne({ userId });
@@ -196,6 +196,14 @@ exports.updateUser = async (req, res, next) => {
       const error = new Error("User not found");
       error.statusCode = 400;
       throw error;
+    }
+    const checkUserName = await User.findOne({ username });
+    if (checkUserName) {
+      if (checkUserName.userId !== userId) {
+        const error = new Error("Username already exist's");
+        error.statusCode = 400;
+        throw error;
+      }
     }
 
     const updateUser = await User.findOneAndUpdate(

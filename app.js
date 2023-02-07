@@ -16,8 +16,9 @@ app.use("/user", require("./routes/userRoute"));
 app.use((error, req, res, next) => {
   const status = error.statusCode || 500;
   const message = error.message;
+  const type = error.type;
 
-  res.status(status).json({ message });
+  res.status(status).json({ message, type });
 });
 
 app.listen(PORT, () => {
