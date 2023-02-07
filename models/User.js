@@ -23,6 +23,11 @@ const UserSchema = new mongoose.Schema(
     usercreated_at: {
       type: String,
     },
+    gender: {
+      type: String,
+      enum: ["male", "female"],
+    },
+    phone: String,
     date: String,
     resetToken: String,
     resetTokenExpirationDate: String,

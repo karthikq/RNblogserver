@@ -55,7 +55,7 @@ exports.loginRoute = async (req, res, next) => {
   }
 };
 exports.singUpRoute = async (req, res, next) => {
-  const { email, password, username } = req.body;
+  const { email, password, username, userImage } = req.body;
   console.log(req.body);
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -85,7 +85,7 @@ exports.singUpRoute = async (req, res, next) => {
       userId,
       usercreated_at,
       date,
-      userImage: "https://fastly.picsum.photos/id/167/200/300.jpg",
+      userImage,
     });
     let userdata = await newUser.save();
     const token = jwt.sign({ email, userId }, process.env.JWT_SECRECT, {

@@ -185,3 +185,42 @@ exports.resetPassoword = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.updateUser = async (req, res, next) => {
+  const userId = req.body.userId;
+  console.log(req.body, "asdsd");
+  const { username, phone, userImage, gender } = req.body;
+  try {
+    const findUser = await User.findOne({ userId });
+    if (!findUser) {
+      const error = new Error("User not found");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const updateUser = await User.findOneAndUpdate(
+      { userId },
+      {
+        $set: {
+          username,
+          gender,
+          phone,
+          userImage,
+        },
+      },
+      {
+        new: true,
+      }
+    );
+    console.log(updateUser);
+    return res
+      .status(201)
+      .json({ message: "user updated", userdata: updateUser });
+  } catch (error) {
+    console.log(error);
+    if (!error.statusCode) {
+      error.statusCode = 500;
+    }
+    next(error);
+  }
+};
