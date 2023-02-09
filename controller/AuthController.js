@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken");
 
 exports.loginRoute = async (req, res, next) => {
   const { email, password } = req.body;
-  console.log(req.body);
+
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -61,7 +61,7 @@ exports.loginRoute = async (req, res, next) => {
 };
 exports.singUpRoute = async (req, res, next) => {
   const { email, password, username, userImage } = req.body;
-  console.log(req.body);
+
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });

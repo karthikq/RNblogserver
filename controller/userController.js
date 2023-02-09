@@ -64,7 +64,7 @@ exports.getUserData = async (req, res, next) => {
     const findUser = await User.findOne({ userId })
       .populate("favArticles.postId")
       .exec();
-    console.log(findUser);
+
     if (!findUser) {
       return res.status(400).json({ message: "User not found" });
     } else {
@@ -166,7 +166,7 @@ exports.resetPassoword = async (req, res, next) => {
       error.statusCode = 400;
       throw error;
     }
-    console.log(req.body);
+
     const findUser = await User.findOne({ email });
     if (!findUser) {
       const error = new Error("User not found");
@@ -220,7 +220,7 @@ exports.updateUser = async (req, res, next) => {
         new: true,
       }
     );
-    console.log(updateUser);
+
     return res
       .status(201)
       .json({ message: "user updated", userdata: updateUser });
