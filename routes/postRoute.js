@@ -51,6 +51,7 @@ route.patch(
   body("description").trim().escape(),
   body("visibilty").notEmpty().withMessage("this field must not be empty"),
   body("category").notEmpty().withMessage("this field is required"),
+  isAuth,
   editPost
 );
 route.get("/:postId", getPost);

@@ -3,6 +3,7 @@ const moment = require("moment");
 const { v4: nanoid } = require("uuid");
 const { validationResult } = require("express-validator");
 const User = require("../models/User");
+
 exports.CreatePost = async (req, res, next) => {
   const { title, description, visibility, imageUrl, category, resizeMode } =
     req.body;
@@ -45,15 +46,23 @@ exports.CreatePost = async (req, res, next) => {
 
 exports.deletePost = async (req, res, next) => {
   const { postId } = req.params;
+  const loggedUser = req.user._id;
   try {
     const findPost = await Post.findOne({ postId });
-    if (findPost) {
-      await Post.deleteOne({ postId });
-      return res.status(200).json({ message: "Post deleted", deleted: true });
+
+    if (findPost.user.toString() === loggedUser.toString()) {
+      if (findPost) {
+        await Post.deleteOne({ postId });
+        return res.status(200).json({ message: "Post deleted", deleted: true });
+      } else {
+        const error = new Error("Post not found");
+        error.statusCode = 401;
+        throw error;
+      }
     } else {
-      const error = new Error("Password doesn't match");
+      const error = new Error("User not allowed");
       error.statusCode = 401;
-      next(error);
+      throw error;
     }
   } catch (error) {
     if (!error.statusCode) {
@@ -65,23 +74,34 @@ exports.deletePost = async (req, res, next) => {
 
 exports.editPost = async (req, res, next) => {
   const { postId } = req.body;
+  const loggedUser = req.user.userId;
 
   try {
     const findPost = await Post.findOne({ postId }).populate("user").exec();
-    if (findPost) {
-      Object.assign(findPost, req.body);
-      const newupdatedPost = await Post.findOneAndUpdate({ postId }, findPost, {
-        new: true,
-        upsert: true,
-      })
-        .populate("user")
-        .exec();
+    if (findPost.user.userId === loggedUser) {
+      if (findPost) {
+        Object.assign(findPost, req.body);
+        const newupdatedPost = await Post.findOneAndUpdate(
+          { postId },
+          findPost,
+          {
+            new: true,
+            upsert: true,
+          }
+        )
+          .populate("user")
+          .exec();
 
-      return res
-        .status(200)
-        .json({ message: "Post updated", postdata: newupdatedPost });
+        return res
+          .status(200)
+          .json({ message: "Post updated", postdata: newupdatedPost });
+      } else {
+        const error = new Error("Post not found");
+        error.statusCode = 401;
+        throw error;
+      }
     } else {
-      const error = new Error("Post not found");
+      const error = new Error("User not allowed");
       error.statusCode = 401;
       throw error;
     }
