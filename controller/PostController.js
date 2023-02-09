@@ -73,7 +73,9 @@ exports.editPost = async (req, res, next) => {
       const newupdatedPost = await Post.findOneAndUpdate({ postId }, findPost, {
         new: true,
         upsert: true,
-      });
+      })
+        .populate("user")
+        .exec();
 
       return res
         .status(200)
