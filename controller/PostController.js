@@ -15,7 +15,7 @@ exports.CreatePost = async (req, res, next) => {
   if (!title || !description || !visibility || !imageUrl || !category) {
     const error = new Error("All fields are required");
     error.statusCode = 400;
-    next(error);
+    throw error;
   }
   const postcreated_at = new Date().toISOString();
   const postId = nanoid();
