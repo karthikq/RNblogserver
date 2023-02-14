@@ -64,6 +64,7 @@ exports.getUserData = async (req, res, next) => {
     const findUser = await User.findOne({ userId })
       .populate("favArticles.postId")
       .populate("followers.user")
+      .populate("following.user")
       .exec();
 
     if (!findUser) {
@@ -223,6 +224,7 @@ exports.updateUser = async (req, res, next) => {
     )
       .populate("favArticles.postId")
       .populate("followers.user")
+      .populate("following.user")
       .exec();
 
     return res
@@ -250,7 +252,7 @@ exports.addFollower = async (req, res, next) => {
     const ifalreadyfollowing = findUser.followers.find(
       (user) => user.user.toString() === loggedUser.toString()
     );
-    console.log(ifalreadyfollowing);
+
     if (ifalreadyfollowing) {
       const updateFollower = await User.findOneAndUpdate(
         { _id: userId },
@@ -261,10 +263,26 @@ exports.addFollower = async (req, res, next) => {
       )
         .populate("favArticles.postId")
         .populate("followers.user")
+        .populate("following.user")
         .exec();
-      return res
-        .status(201)
-        .json({ message: "Follower removed", userdata: updateFollower });
+
+      const updatecurrentUser = await User.findOneAndUpdate(
+        { _id: loggedUser },
+        {
+          $pull: { following: { user: userId } },
+        },
+        { new: true }
+      )
+        .populate("favArticles.postId")
+        .populate("followers.user")
+        .populate("following.user")
+        .exec();
+
+      return res.status(201).json({
+        message: "Follower removed",
+        userdata: updateFollower,
+        currentuserdata: updatecurrentUser,
+      });
     } else {
       const addFollower = await User.findOneAndUpdate(
         { _id: userId },
@@ -277,11 +295,25 @@ exports.addFollower = async (req, res, next) => {
       )
         .populate("favArticles.postId")
         .populate("followers.user")
+        .populate("following.user")
+        .exec();
+      const updatecurrentUser = await User.findOneAndUpdate(
+        { _id: loggedUser },
+        {
+          $push: { following: { user: userId } },
+        },
+        { new: true }
+      )
+        .populate("favArticles.postId")
+        .populate("followers.user")
+        .populate("following.user")
         .exec();
 
-      return res
-        .status(201)
-        .json({ message: "Follower added", userdata: addFollower });
+      return res.status(201).json({
+        message: "Follower added",
+        userdata: addFollower,
+        currentuserdata: updatecurrentUser,
+      });
     }
   } catch (error) {
     if (!error.statusCode) {
