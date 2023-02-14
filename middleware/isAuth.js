@@ -22,8 +22,10 @@ exports.isAuth = (req, res, next) => {
   jwt.verify(token, process.env.JWT_SECRECT, async (err, decodedToken) => {
     try {
       if (err) {
-        const error = new Error("User not valid");
-        error.statusCode = 403;
+        console.log(err.message);
+        const error = new Error("User session expired");
+        error.type = "token";
+        error.statusCode = 502;
         throw error;
       }
       if (!decodedToken) {

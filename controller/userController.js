@@ -63,6 +63,7 @@ exports.getUserData = async (req, res, next) => {
   try {
     const findUser = await User.findOne({ userId })
       .populate("favArticles.postId")
+      .populate("followers.user")
       .exec();
 
     if (!findUser) {
@@ -219,13 +220,70 @@ exports.updateUser = async (req, res, next) => {
       {
         new: true,
       }
-    );
+    )
+      .populate("favArticles.postId")
+      .populate("followers.user")
+      .exec();
 
     return res
       .status(201)
       .json({ message: "user updated", userdata: updateUser });
   } catch (error) {
     console.log(error);
+    if (!error.statusCode) {
+      error.statusCode = 500;
+    }
+    next(error);
+  }
+};
+exports.addFollower = async (req, res, next) => {
+  const { userId } = req.params;
+  const loggedUser = req.user._id;
+  console.log(userId);
+  try {
+    const findUser = await User.findOne({ _id: userId });
+    if (!findUser) {
+      const error = new Error("User doesn't exists");
+      error.statusCode = 400;
+      throw error;
+    }
+    const ifalreadyfollowing = findUser.followers.find(
+      (user) => user.user.toString() === loggedUser.toString()
+    );
+    console.log(ifalreadyfollowing);
+    if (ifalreadyfollowing) {
+      const updateFollower = await User.findOneAndUpdate(
+        { _id: userId },
+        {
+          $pull: { followers: { user: loggedUser } },
+        },
+        { new: true }
+      )
+        .populate("favArticles.postId")
+        .populate("followers.user")
+        .exec();
+      return res
+        .status(201)
+        .json({ message: "Follower removed", userdata: updateFollower });
+    } else {
+      const addFollower = await User.findOneAndUpdate(
+        { _id: userId },
+        {
+          $push: {
+            followers: { user: loggedUser },
+          },
+        },
+        { new: true }
+      )
+        .populate("favArticles.postId")
+        .populate("followers.user")
+        .exec();
+
+      return res
+        .status(201)
+        .json({ message: "Follower added", userdata: addFollower });
+    }
+  } catch (error) {
     if (!error.statusCode) {
       error.statusCode = 500;
     }

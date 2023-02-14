@@ -31,6 +31,11 @@ const UserSchema = new mongoose.Schema(
     date: String,
     resetToken: String,
     resetTokenExpirationDate: String,
+    followers: [
+      {
+        user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      },
+    ],
     favArticles: [
       {
         postId: { type: mongoose.Schema.Types.ObjectId, ref: "Post" },
