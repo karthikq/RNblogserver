@@ -349,14 +349,9 @@ exports.addToken = async (req, res, next) => {
       .populate("following.user")
       .exec();
     if (findUser) {
-      const newData = await User.findByIdAndUpdate(
-        { userId },
-        {
-          $set: { deviceToken: token },
-        },
-        { new: true }
-      );
-      return res.status(201).json({ userdata: newData });
+      findUser.deviceToken = token;
+      await findUser.save();
+      return res.status(201).json({ userdata: findUser });
     }
   } catch (error) {
     console.log(error);
