@@ -36,7 +36,7 @@ exports.isAuth = (req, res, next) => {
       if (decodedToken) {
         const userData = await User.findOne({ userId: decodedToken.userId });
         if (!userData) {
-          const error = new Error("User not found");
+          const error = new Error("Please login");
           error.statusCode = 500;
           next(error);
         }

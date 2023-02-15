@@ -31,6 +31,7 @@ const UserSchema = new mongoose.Schema(
     date: String,
     resetToken: String,
     resetTokenExpirationDate: String,
+    deviceToken: String,
     following: [
       {
         user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },

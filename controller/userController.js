@@ -2,6 +2,7 @@ const Post = require("../models/Posts");
 const User = require("../models/User");
 const otpGenerator = require("otp-generator");
 const Mailer = require("../mail/Mailer");
+const { notification } = require("./NotificationController");
 
 exports.addTofav = async (req, res, next) => {
   const { postId } = req.params;
@@ -309,6 +310,18 @@ exports.addFollower = async (req, res, next) => {
         .populate("following.user")
         .exec();
 
+      //sending notification to user
+      const messageTitle = "New Follower";
+      const messageBody = updatecurrentUser.username + "started Following you";
+      const deviceToken = findUser.deviceToken;
+
+      await notification(
+        messageTitle,
+        messageBody,
+        updatecurrentUser.userImage,
+        updatecurrentUser.deviceToken
+      );
+
       return res.status(201).json({
         message: "Follower added",
         userdata: addFollower,
@@ -320,5 +333,32 @@ exports.addFollower = async (req, res, next) => {
       error.statusCode = 500;
     }
     next(error);
+  }
+};
+
+exports.addToken = async (req, res, next) => {
+  const { userId, token } = req.body;
+  console.log(req.body);
+  try {
+    if (!userId || !token) {
+      console.log("field are required");
+    }
+    const findUser = await User.findOne({ userId })
+      .populate("favArticles.postId")
+      .populate("followers.user")
+      .populate("following.user")
+      .exec();
+    if (findUser) {
+      const newData = await User.findByIdAndUpdate(
+        { userId },
+        {
+          $set: { deviceToken: token },
+        },
+        { new: true }
+      );
+      return res.status(201).json({ userdata: newData });
+    }
+  } catch (error) {
+    console.log(error);
   }
 };
