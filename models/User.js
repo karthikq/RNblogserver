@@ -32,6 +32,13 @@ const UserSchema = new mongoose.Schema(
     resetToken: String,
     resetTokenExpirationDate: String,
     deviceToken: String,
+    notifications: [
+      {
+        message: String,
+        date: String,
+        user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      },
+    ],
     following: [
       {
         user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },

@@ -66,8 +66,8 @@ exports.getUserData = async (req, res, next) => {
       .populate("favArticles.postId")
       .populate("followers.user")
       .populate("following.user")
+      .populate("notifications.user")
       .exec();
-
     if (!findUser) {
       return res.status(400).json({ message: "User not found" });
     } else {
@@ -226,6 +226,7 @@ exports.updateUser = async (req, res, next) => {
       .populate("favArticles.postId")
       .populate("followers.user")
       .populate("following.user")
+      .populate("notifications.user")
       .exec();
 
     return res
@@ -265,6 +266,7 @@ exports.addFollower = async (req, res, next) => {
         .populate("favArticles.postId")
         .populate("followers.user")
         .populate("following.user")
+        .populate("notifications.user")
         .exec();
 
       const updatecurrentUser = await User.findOneAndUpdate(
@@ -277,19 +279,25 @@ exports.addFollower = async (req, res, next) => {
         .populate("favArticles.postId")
         .populate("followers.user")
         .populate("following.user")
+        .populate("notifications.user")
         .exec();
-
       return res.status(201).json({
         message: "Follower removed",
         userdata: updateFollower,
         currentuserdata: updatecurrentUser,
       });
     } else {
+      const notificationDetails = {
+        message: req.user.username + " started following you",
+        date: new Date().toISOString(),
+        user: loggedUser,
+      };
       const addFollower = await User.findOneAndUpdate(
         { _id: userId },
         {
           $push: {
             followers: { user: loggedUser },
+            notifications: notificationDetails,
           },
         },
         { new: true }
@@ -297,17 +305,28 @@ exports.addFollower = async (req, res, next) => {
         .populate("favArticles.postId")
         .populate("followers.user")
         .populate("following.user")
+        .populate("notifications.user")
         .exec();
+
+      const currentnotificationDetails = {
+        message: "You started following " + findUser.username,
+        date: new Date().toISOString(),
+        user: userId,
+      };
       const updatecurrentUser = await User.findOneAndUpdate(
         { _id: loggedUser },
         {
-          $push: { following: { user: userId } },
+          $push: {
+            following: { user: userId },
+            notifications: currentnotificationDetails,
+          },
         },
         { new: true }
       )
         .populate("favArticles.postId")
         .populate("followers.user")
         .populate("following.user")
+        .populate("notifications.user")
         .exec();
 
       //sending notification to user
@@ -315,12 +334,12 @@ exports.addFollower = async (req, res, next) => {
       const messageBody = updatecurrentUser.username + "started Following you";
       const deviceToken = findUser.deviceToken;
 
-      await notification(
-        messageTitle,
-        messageBody,
-        updatecurrentUser.userImage,
-        updatecurrentUser.deviceToken
-      );
+      // await notification(
+      //   messageTitle,
+      //   messageBody,
+      //   updatecurrentUser.userImage,
+      //   deviceToken
+      // );
 
       return res.status(201).json({
         message: "Follower added",
@@ -347,6 +366,7 @@ exports.addToken = async (req, res, next) => {
       .populate("favArticles.postId")
       .populate("followers.user")
       .populate("following.user")
+      .populate("notifications.user")
       .exec();
     if (findUser) {
       findUser.deviceToken = token;
@@ -357,3 +377,14 @@ exports.addToken = async (req, res, next) => {
     console.log(error);
   }
 };
+
+// exports.addNotification = async (req, res, next) => {
+//   const { userId } = req.params;
+//   const findUser = await User.findOne({ userId });
+//   if (!findUser) {
+//     const error = new Error("User doesn't exists");
+//     error.statusCode = 400;
+//     throw error;
+//   }
+
+// };
