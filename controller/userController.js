@@ -331,15 +331,15 @@ exports.addFollower = async (req, res, next) => {
 
       //sending notification to user
       const messageTitle = "New Follower";
-      const messageBody = updatecurrentUser.username + "started Following you";
-      const deviceToken = findUser.deviceToken;
+      const messageBody = updatecurrentUser.username + " started Following you";
+      const deviceToken = updatecurrentUser.deviceToken;
 
-      // await notification(
-      //   messageTitle,
-      //   messageBody,
-      //   updatecurrentUser.userImage,
-      //   deviceToken
-      // );
+      await notification(
+        messageTitle,
+        messageBody,
+        updatecurrentUser.userImage,
+        deviceToken
+      );
 
       return res.status(201).json({
         message: "Follower added",

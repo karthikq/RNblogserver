@@ -1,44 +1,49 @@
-const { initializeApp } = require("firebase-admin/app");
-const admin = require("firebase-admin");
-var serviceAccount = require("./fgdfgs-98a02-firebase-adminsdk-i16ux-ea322c9743.json");
-
-initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
-
+const { Expo } = require("expo-server-sdk");
 exports.notification = async (title, body, image, deviceToken) => {
-  try {
-    console.log("sd");
+  let expo = new Expo({ accessToken: process.env.EXPO_TOKEN });
+  let messages = [];
+  let somePushTokens =
+    typeof deviceToken === "string" ? [deviceToken] : deviceToken;
+  console.log(somePushTokens);
+  for (let pushToken of somePushTokens) {
+    // Each push token looks like ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]
 
-    const message = {
-      token: [deviceToken],
+    // Check that all your push tokens appear to be valid Expo push tokens
+    if (!Expo.isExpoPushToken(pushToken)) {
+      console.log("errpr");
+    }
 
-      notification: {
-        title: title,
-        body: body,
-        imageUrl: image
-          ? image
-          : "https://images.pexels.com/photos/268533/pexels-photo-268533.jpeg?cs=srgb&dl=pexels-pixabay-268533.jpg&fm=jpg",
-      },
-    };
-
-    const status = await admin.messaging().sendMulticast(message);
-    console.log(status);
-  } catch (error) {
-    console.log(error);
+    // Construct a message (see https://docs.expo.io/push-notifications/sending-notifications/)
+    messages.push({
+      to: pushToken,
+      sound: "default",
+      title: title,
+      body: body,
+      data: { imageUrl: image ? image : "" },
+      priority: "high",
+      channelId: "default",
+    });
   }
+  let chunks = expo.chunkPushNotifications(messages);
+  let tickets = [];
+  (async () => {
+    // Send the chunks to the Expo push notification service. There are
+    // different strategies you could use. A simple one is to send one chunk at a
+    // time, which nicely spreads the load out over time:
+    for (let chunk of chunks) {
+      try {
+        let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+        console.log(ticketChunk);
+        tickets.push(...ticketChunk);
+        // NOTE: If a ticket contains an error code in ticket.details.error, you
+        // must handle it appropriately. The error codes are listed in the Expo
+        // documentation:
+        // https://docs.expo.io/push-notifications/sending-notifications/#individual-errors
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  })();
 };
 
-exports.sendtomany = async (title, body, image, userTokens) => {
-  const message = {
-    tokens: userTokens,
-    notification: {
-      title: "Basic Notification",
-      body: "This is a basic notification sent from the server!",
-      imageUrl:
-        "https://images.pexels.com/photos/268533/pexels-photo-268533.jpeg?cs=srgb&dl=pexels-pixabay-268533.jpg&fm=jpg",
-    },
-  };
-
-  const status = await admin.messaging().sendMulticast(message);
-};
+exports.sendtomany = async (title, body, image, userTokens) => {};
