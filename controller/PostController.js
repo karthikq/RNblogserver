@@ -31,6 +31,7 @@ exports.CreatePost = async (req, res, next) => {
     visibility,
     imageUrl,
     category,
+    categoryDate: new Date().toISOString(),
     resizeMode: resizeMode ? resizeMode : "cover",
   });
   try {
