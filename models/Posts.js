@@ -18,8 +18,11 @@ const PostSchema = new mongoose.Schema(
       ref: "User",
     },
     postId: String,
-    category: String,
-    categoryDate: String,
+    category: {
+      val: String,
+      date: String,
+      user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    },
     postcreated_at: {
       type: String,
     },

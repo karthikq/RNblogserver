@@ -30,8 +30,12 @@ exports.CreatePost = async (req, res, next) => {
     user: req.user,
     visibility,
     imageUrl,
-    category,
-    categoryDate: new Date().toISOString(),
+    category: {
+      val: category,
+      date: new Date().toISOString(),
+      user: req.user._id,
+    },
+
     resizeMode: resizeMode ? resizeMode : "cover",
   });
   try {
@@ -81,6 +85,18 @@ exports.editPost = async (req, res, next) => {
     const findPost = await Post.findOne({ postId }).populate("user").exec();
     if (findPost.user.userId === loggedUser) {
       if (findPost) {
+        if (req.body.category !== findPost.category) {
+          req.body.category = {
+            ...findPost.category,
+            val: req.body.category,
+            date: new Date().toISOString(),
+          };
+        } else {
+          req.body.category = {
+            ...findPost.category,
+            val: req.body.category,
+          };
+        }
         Object.assign(findPost, req.body);
         const newupdatedPost = await Post.findOneAndUpdate(
           { postId },
