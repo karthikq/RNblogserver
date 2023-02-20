@@ -19,15 +19,7 @@ const Mailer = (senderEmail, token) => {
      <tbody>
        <tr>
          <td style="width: 600px; text-align: left">
-           <div style="text-align: right">
-             <img
-               src="https://i.ibb.co/Zg1hjXM/92615-forgot-password-password-reset.gif"
-               alt="err"
-               style="width: 120px; height: 120px"
-               height="120px"
-               width="100px"
-             />
-           </div>
+            
            <div>
              <p
                style="

@@ -28,6 +28,9 @@ exports.addTofav = async (req, res, next) => {
             }
           )
             .populate("favArticles.postId")
+            .populate("followers.user")
+            .populate("following.user")
+            .populate("notifications.user")
             .exec();
 
           return res
@@ -45,6 +48,9 @@ exports.addTofav = async (req, res, next) => {
         }
       )
         .populate("favArticles.postId")
+        .populate("followers.user")
+        .populate("following.user")
+        .populate("notifications.user")
         .exec();
 
       return res.status(201).json({ message: "Added", userdata: result });
@@ -241,9 +247,10 @@ exports.updateUser = async (req, res, next) => {
   }
 };
 exports.addFollower = async (req, res, next) => {
+  //fetchedUser
   const { userId } = req.params;
   const loggedUser = req.user._id;
-  console.log(userId);
+  console.log(userId, loggedUser);
   try {
     const findUser = await User.findOne({ _id: userId });
     if (!findUser) {
@@ -251,10 +258,10 @@ exports.addFollower = async (req, res, next) => {
       error.statusCode = 400;
       throw error;
     }
-    const ifalreadyfollowing = findUser.followers.find(
+    const ifalreadyfollowing = findUser.followers.some(
       (user) => user.user.toString() === loggedUser.toString()
     );
-
+    console.log(ifalreadyfollowing, "al");
     if (ifalreadyfollowing) {
       const updateFollower = await User.findOneAndUpdate(
         { _id: userId },
@@ -332,14 +339,16 @@ exports.addFollower = async (req, res, next) => {
       //sending notification to user
       const messageTitle = "New Follower";
       const messageBody = updatecurrentUser.username + " started Following you";
-      const deviceToken = updatecurrentUser.deviceToken;
-
-      await notification(
-        messageTitle,
-        messageBody,
-        updatecurrentUser.userImage,
-        deviceToken
-      );
+      const deviceToken =
+        updatecurrentUser.deviceToken && updatecurrentUser.deviceToken;
+      if (updatecurrentUser.deviceToken) {
+        await notification(
+          messageTitle,
+          messageBody,
+          updatecurrentUser.userImage,
+          deviceToken
+        );
+      }
 
       return res.status(201).json({
         message: "Follower added",
@@ -372,6 +381,79 @@ exports.addToken = async (req, res, next) => {
       findUser.deviceToken = token;
       await findUser.save();
       return res.status(201).json({ userdata: findUser });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+exports.Notificationup = async (req, res, next) => {
+  const { userId } = req.params;
+
+  try {
+    if (!userId) {
+      console.log("field are required");
+    }
+    const findUser = await User.findOne({ userId });
+
+    if (findUser) {
+      await User.updateMany(
+        { userId },
+        {
+          $set: {
+            "notifications.$[].isRead": true,
+          },
+        },
+        {
+          new: true,
+          upsert: true,
+        }
+      );
+
+      const updatedUser = await User.findOne({ userId })
+        .populate("favArticles.postId")
+        .populate("followers.user")
+        .populate("following.user")
+        .populate("notifications.user")
+        .exec();
+      return res.status(201).json({ userdata: updatedUser });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.RemoveNotificaitons = async (req, res, next) => {
+  const { notiId } = req.params;
+  const userId = req.user.userId;
+  console.log(notiId, userId);
+  try {
+    if (!notiId) {
+      console.log("field are required");
+    }
+    const findUser = await User.findOne({ userId });
+
+    if (findUser) {
+      const updatedUser = await User.findOneAndUpdate(
+        { userId },
+        {
+          $pull: {
+            notifications: { _id: notiId },
+          },
+        },
+        {
+          new: true,
+        }
+      )
+        .populate("favArticles.postId")
+        .populate("followers.user")
+        .populate("following.user")
+        .populate("notifications.user")
+        .exec();
+      return res.status(201).json({ userdata: updatedUser });
+    } else {
+      const error = new Error("User not found");
+      error.statusCode = 500;
+      throw error;
     }
   } catch (error) {
     console.log(error);

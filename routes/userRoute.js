@@ -11,6 +11,8 @@ const {
   updateUser,
   addFollower,
   addToken,
+  Notificationup,
+  RemoveNotificaitons,
 } = require("../controller/userController");
 const { notification } = require("../controller/NotificationController");
 
@@ -24,5 +26,7 @@ route.post("/password/reset", resetPassoword);
 route.patch("/update/:id", isAuth, updateUser);
 route.patch("/add/follower/:userId", isAuth, addFollower);
 route.patch("/devicetoken", isAuth, addToken);
+route.patch("/notification/up/:userId", isAuth, Notificationup);
+route.delete("/notification/delete/:notiId", isAuth, RemoveNotificaitons);
 
 module.exports = route;

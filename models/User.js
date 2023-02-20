@@ -37,6 +37,10 @@ const UserSchema = new mongoose.Schema(
         message: String,
         date: String,
         user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        isRead: {
+          type: Boolean,
+          default: false,
+        },
       },
     ],
     following: [
