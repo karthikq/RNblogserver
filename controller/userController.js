@@ -365,8 +365,8 @@ exports.addFollower = async (req, res, next) => {
 };
 
 exports.addToken = async (req, res, next) => {
-  const { userId, token } = req.body;
-  console.log(req.body);
+  const { userId, token, ipaddress } = req.body;
+
   try {
     if (!userId || !token) {
       console.log("field are required");
@@ -379,6 +379,8 @@ exports.addToken = async (req, res, next) => {
       .exec();
     if (findUser) {
       findUser.deviceToken = token;
+      findUser.userNetwork = ipaddress;
+
       await findUser.save();
       return res.status(201).json({ userdata: findUser });
     }
