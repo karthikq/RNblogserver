@@ -33,7 +33,7 @@ const UserSchema = new mongoose.Schema(
     resetTokenExpirationDate: String,
     deviceToken: String,
     userNetwork: String,
-
+    userCountry: {},
     notifications: [
       {
         message: String,

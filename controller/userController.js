@@ -198,7 +198,7 @@ exports.resetPassoword = async (req, res, next) => {
 exports.updateUser = async (req, res, next) => {
   const userId = req.body.userId;
 
-  const { username, phone, userImage, gender } = req.body;
+  const { username, phone, userImage, gender, userCountry } = req.body;
   try {
     const findUser = await User.findOne({ userId });
     if (!findUser) {
@@ -223,6 +223,7 @@ exports.updateUser = async (req, res, next) => {
           gender,
           phone,
           userImage,
+          userCountry,
         },
       },
       {
