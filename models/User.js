@@ -34,6 +34,7 @@ const UserSchema = new mongoose.Schema(
     deviceToken: String,
     userNetwork: String,
     userCountry: {},
+    isSubscriber: false,
     notifications: [
       {
         message: String,
