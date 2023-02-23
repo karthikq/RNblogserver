@@ -23,8 +23,7 @@ route.post(
   body("title")
     .trim()
     .isLength({ min: 5, max: 50 })
-    .withMessage("Title must have 5 & less than 50 char's")
-    .escape(),
+    .withMessage("Title must have 5 & less than 50 char's"),
   body("description").trim().escape().notEmpty(),
   body("visibility").notEmpty().withMessage("this field must not be empty"),
   body("category")
