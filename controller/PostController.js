@@ -57,21 +57,23 @@ exports.deletePost = async (req, res, next) => {
 
     if (findPost.user.toString() === loggedUser.toString()) {
       if (findPost) {
-        await Post.deleteOne({ postId });
         const checkinUsercoll = req.user.favArticles.find(
           (el) => el.postId.toString() === findPost._id.toString()
         );
 
-        if (checkinUsercoll) {
-          await User.findOneAndUpdate(
-            { _id: loggedUser },
-            {
-              $pull: {
-                favArticles: { postId: findPost._id },
-              },
-            }
+        const allUser = await User.find({
+          "favArticles.postId": findPost._id,
+        });
+
+        if (allUser.length > 0) {
+          const updatedres = await User.updateMany(
+            {},
+            { $pull: { favArticles: { postId: findPost._id } } }
           );
         }
+
+        await Post.deleteOne({ postId });
+
         return res.status(200).json({ message: "Post deleted", deleted: true });
       } else {
         const error = new Error("Post not found");
