@@ -29,6 +29,7 @@ const PostSchema = new mongoose.Schema(
     date: String,
     imageUrl: String,
     despImage: String,
+    youtubeId: String,
     resizeMode: String,
   },
   {

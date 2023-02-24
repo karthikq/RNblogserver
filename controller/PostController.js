@@ -13,6 +13,7 @@ exports.CreatePost = async (req, res, next) => {
     category,
     resizeMode,
     despImage,
+    youtubeId,
   } = req.body;
   const errors = validationResult(req);
 
@@ -38,6 +39,7 @@ exports.CreatePost = async (req, res, next) => {
     visibility,
     imageUrl,
     despImage: despImage ? despImage : "",
+    youtubeId: youtubeId ? youtubeId : "",
     category: {
       val: category,
       date: new Date().toISOString(),
