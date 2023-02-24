@@ -349,8 +349,8 @@ exports.addFollower = async (req, res, next) => {
       //sending notification to user
       const messageTitle = "New Follower";
       const messageBody = updatecurrentUser.username + " started Following you";
-      const deviceToken = addFollower.deviceToken && addFollower.deviceToken;
-      if (addFollower.deviceToken) {
+      const deviceToken = findUser.deviceToken;
+      if (findUser.deviceToken) {
         await notification(
           messageTitle,
           messageBody,
