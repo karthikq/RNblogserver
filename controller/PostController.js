@@ -3,6 +3,7 @@ const moment = require("moment");
 const { v4: nanoid } = require("uuid");
 const { validationResult } = require("express-validator");
 const User = require("../models/User");
+const { notification } = require("./NotificationController");
 
 exports.CreatePost = async (req, res, next) => {
   const {
@@ -50,6 +51,28 @@ exports.CreatePost = async (req, res, next) => {
   });
   try {
     const createdPost = await newPost.save();
+    const allFollowers = await User.findOne({ _id: req.user._id }).populate(
+      "followers.user"
+    );
+
+    const deviceTokenArr = allFollowers.followers.map(
+      (user) => user.user.deviceToken
+    );
+    if (deviceTokenArr.length > 0) {
+      const messageTitle = req.user.username + "Created a new Post";
+      const messageBody = title;
+      const deviceToken = deviceTokenArr;
+      console.log(deviceToken);
+      if (deviceToken) {
+        await notification(
+          messageTitle,
+          messageBody,
+          req.user.userImage,
+          deviceToken
+        );
+      }
+    }
+
     return res.status(200).json({ createdPost, message: "Post created" });
   } catch (error) {
     if (!error.statusCode) {
