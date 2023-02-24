@@ -5,8 +5,15 @@ const { validationResult } = require("express-validator");
 const User = require("../models/User");
 
 exports.CreatePost = async (req, res, next) => {
-  const { title, description, visibility, imageUrl, category, resizeMode } =
-    req.body;
+  const {
+    title,
+    description,
+    visibility,
+    imageUrl,
+    category,
+    resizeMode,
+    despImage,
+  } = req.body;
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -30,6 +37,7 @@ exports.CreatePost = async (req, res, next) => {
     user: req.user,
     visibility,
     imageUrl,
+    despImage: despImage ? despImage : "",
     category: {
       val: category,
       date: new Date().toISOString(),

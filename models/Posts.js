@@ -28,6 +28,7 @@ const PostSchema = new mongoose.Schema(
     },
     date: String,
     imageUrl: String,
+    despImage: String,
     resizeMode: String,
   },
   {
