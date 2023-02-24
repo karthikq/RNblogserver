@@ -22,7 +22,10 @@ route.post(
     .toLowerCase()
     .withMessage("Email is not valid")
     .normalizeEmail(),
-  body("username").trim().escape(),
+  body("username")
+    .trim()
+    .isLength({ max: 15 })
+    .withMessage("username must be less than 15 char's"),
   body("password")
     .isLength({ min: 5 })
     .withMessage("Password must be 5 character's long"),

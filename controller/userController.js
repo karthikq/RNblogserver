@@ -199,11 +199,19 @@ exports.updateUser = async (req, res, next) => {
   const userId = req.body.userId;
 
   const { username, phone, userImage, gender, userCountry } = req.body;
+
   try {
+    if (username.length > 15) {
+      const error = new Error("Username must bee less than 15 char's");
+      error.statusCode = 402;
+      error.type = "username";
+      throw error;
+    }
     const findUser = await User.findOne({ userId });
     if (!findUser) {
       const error = new Error("User not found");
       error.statusCode = 400;
+      error.type = "username";
       throw error;
     }
     const checkUserName = await User.findOne({ username });
@@ -211,6 +219,7 @@ exports.updateUser = async (req, res, next) => {
       if (checkUserName.userId !== userId) {
         const error = new Error("Username already exist's");
         error.statusCode = 400;
+        error.type = "username";
         throw error;
       }
     }
