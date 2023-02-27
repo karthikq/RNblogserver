@@ -24,7 +24,7 @@ route.post(
     .trim()
     .isLength({ min: 5, max: 50 })
     .withMessage("Title must have 5 & less than 50 char's"),
-  body("description").trim().escape().notEmpty(),
+  body("description").trim().notEmpty(),
   body("visibility").notEmpty().withMessage("this field must not be empty"),
   body("category")
     .trim()
@@ -47,9 +47,8 @@ route.patch(
   body("title")
     .trim()
     .isLength({ min: 5 })
-    .withMessage("Title must be 5 chracters long")
-    .escape(),
-  body("description").trim().escape(),
+    .withMessage("Title must be 5 chracters long"),
+  body("description").trim(),
   body("visibilty").notEmpty().withMessage("this field must not be empty"),
   body("category").notEmpty().withMessage("this field is required"),
   isAuth,

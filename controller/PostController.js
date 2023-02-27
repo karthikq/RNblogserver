@@ -134,7 +134,7 @@ exports.editPost = async (req, res, next) => {
     const findPost = await Post.findOne({ postId }).populate("user").exec();
     if (findPost.user.userId === loggedUser) {
       if (findPost) {
-        if (req.body.category !== findPost.category) {
+        if (req.body.category !== findPost.category.val) {
           req.body.category = {
             ...findPost.category,
             val: req.body.category,
