@@ -2,7 +2,7 @@ const Post = require("../models/Posts");
 const User = require("../models/User");
 const otpGenerator = require("otp-generator");
 const Mailer = require("../mail/Mailer");
-const { notification } = require("./NotificationController");
+const { notification, sendtomany } = require("./NotificationController");
 
 exports.addTofav = async (req, res, next) => {
   const { postId } = req.params;
@@ -349,14 +349,12 @@ exports.addFollower = async (req, res, next) => {
       //sending notification to user
       const messageTitle = "New Follower";
       const messageBody = updatecurrentUser.username + " started Following you";
-      const deviceToken = findUser.deviceToken;
+      const deviceToken = [updatecurrentUser.deviceToken];
+      console.log(updatecurrentUser.deviceToken);
+      const userImage = updatecurrentUser.userImage;
+
       if (findUser.deviceToken) {
-        await notification(
-          messageTitle,
-          messageBody,
-          updatecurrentUser.userImage,
-          deviceToken
-        );
+        await sendtomany(messageTitle, messageBody, userImage, deviceToken);
       }
 
       return res.status(201).json({

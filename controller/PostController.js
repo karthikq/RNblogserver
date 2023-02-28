@@ -3,7 +3,7 @@ const moment = require("moment");
 const { v4: nanoid } = require("uuid");
 const { validationResult } = require("express-validator");
 const User = require("../models/User");
-const { notification } = require("./NotificationController");
+const { notification, sendtomany } = require("./NotificationController");
 
 exports.CreatePost = async (req, res, next) => {
   const {
@@ -64,7 +64,7 @@ exports.CreatePost = async (req, res, next) => {
       const deviceToken = deviceTokenArr;
       console.log(deviceToken);
       if (deviceToken) {
-        await notification(
+        await sendtomany(
           messageTitle,
           messageBody,
           req.user.userImage,

@@ -1,4 +1,12 @@
 const { Expo } = require("expo-server-sdk");
+
+var admin = require("firebase-admin");
+var serviceAccount = require("./fgdfgs-98a02-firebase-adminsdk-i16ux-4152c8328d.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
 exports.notification = async (title, body, image, deviceToken) => {
   let expo = new Expo({ accessToken: process.env.EXPO_TOKEN });
   let messages = [];
@@ -46,4 +54,20 @@ exports.notification = async (title, body, image, deviceToken) => {
   })();
 };
 
-exports.sendtomany = async (title, body, image, userTokens) => {};
+exports.sendtomany = async (title, body, image, userTokens) => {
+  console.log(image);
+  const message = {
+    tokens: userTokens,
+    notification: {
+      title: title,
+      body: body,
+      imageUrl: image,
+    },
+  };
+
+  try {
+    await admin.messaging().sendMulticast(message);
+  } catch (error) {
+    console.log(error);
+  }
+};
