@@ -308,6 +308,8 @@ exports.addFollower = async (req, res, next) => {
         message: req.user.username + " started following you",
         date: new Date().toISOString(),
         user: loggedUser,
+        notitype: "follower",
+        notiid: req.user.userId,
       };
       const addFollower = await User.findOneAndUpdate(
         { _id: userId },
@@ -329,6 +331,8 @@ exports.addFollower = async (req, res, next) => {
         message: "You started following " + findUser.username,
         date: new Date().toISOString(),
         user: userId,
+        notitype: "follower",
+        notiid: findUser.userId,
       };
       const updatecurrentUser = await User.findOneAndUpdate(
         { _id: loggedUser },
@@ -349,12 +353,19 @@ exports.addFollower = async (req, res, next) => {
       //sending notification to user
       const messageTitle = "New Follower";
       const messageBody = updatecurrentUser.username + " started Following you";
-      const deviceToken = [updatecurrentUser.deviceToken];
-      console.log(updatecurrentUser.deviceToken);
+      const deviceToken = [findUser.deviceToken];
+      console.log(deviceToken);
       const userImage = updatecurrentUser.userImage;
 
       if (findUser.deviceToken) {
-        await sendtomany(messageTitle, messageBody, userImage, deviceToken);
+        await sendtomany(
+          messageTitle,
+          messageBody,
+          userImage,
+          deviceToken,
+          "follower",
+          updatecurrentUser.userId
+        );
       }
 
       return res.status(201).json({
@@ -373,7 +384,7 @@ exports.addFollower = async (req, res, next) => {
 
 exports.addToken = async (req, res, next) => {
   const { userId, token, ipaddress } = req.body;
-
+  console.log(userId, token, "asdsd");
   try {
     if (!userId || !token) {
       console.log("field are required");
@@ -385,6 +396,7 @@ exports.addToken = async (req, res, next) => {
       .populate("notifications.user")
       .exec();
     if (findUser) {
+      console.log("Sdfsd");
       findUser.deviceToken = token;
       findUser.userNetwork = ipaddress;
 

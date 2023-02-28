@@ -58,23 +58,52 @@ exports.CreatePost = async (req, res, next) => {
     const deviceTokenArr = allFollowers.followers.map(
       (user) => user.user.deviceToken
     );
+    console.log(deviceTokenArr, "as");
+
     if (deviceTokenArr.length > 0) {
-      const messageTitle = req.user.username + "Created a new Post";
+      const messageTitle = req.user.username + " created a new Post";
       const messageBody = title;
       const deviceToken = deviceTokenArr;
-      console.log(deviceToken);
+
       if (deviceToken) {
         await sendtomany(
           messageTitle,
           messageBody,
-          req.user.userImage,
-          deviceToken
+          imageUrl,
+          deviceToken,
+          "newpost",
+          createdPost.postId
         );
       }
     }
+    const currentnotificationDetails = {
+      message: req.user.username + " created a new Post",
+      date: new Date().toISOString(),
+      user: req.user._id,
+      notitype: "newpost",
+      notiid: createdPost.postId,
+    };
 
-    return res.status(200).json({ createdPost, message: "Post created" });
+    const updatecurrentUser = await User.updateMany(
+      { "following.user": req.user._id },
+      {
+        $push: {
+          notifications: currentnotificationDetails,
+        },
+      },
+      { new: true }
+    )
+      .populate("favArticles.postId")
+      .populate("followers.user")
+      .populate("following.user")
+      .populate("notifications.user")
+      .exec();
+
+    return res
+      .status(200)
+      .json({ createdPost, message: "Post created", updatecurrentUser });
   } catch (error) {
+    console.log(error);
     if (!error.statusCode) {
       error.statusCode = 500;
     }

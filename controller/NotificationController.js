@@ -54,10 +54,14 @@ exports.notification = async (title, body, image, deviceToken) => {
   })();
 };
 
-exports.sendtomany = async (title, body, image, userTokens) => {
-  console.log(image);
+exports.sendtomany = async (title, body, image, userTokens, type, Id) => {
+  console.log(type, Id);
   const message = {
     tokens: userTokens,
+    data: {
+      type: type ? type : "",
+      Id: Id ? Id : "",
+    },
     notification: {
       title: title,
       body: body,
