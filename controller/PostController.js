@@ -15,6 +15,7 @@ exports.CreatePost = async (req, res, next) => {
     resizeMode,
     despImage,
     youtubeId,
+    keywords,
   } = req.body;
   const errors = validationResult(req);
 
@@ -29,7 +30,7 @@ exports.CreatePost = async (req, res, next) => {
   const postcreated_at = new Date().toISOString();
   const postId = nanoid();
   const date = moment().format("MMM Do YY");
-
+  console.log(keywords,'keywords');
   const newPost = new Post({
     title,
     description,
@@ -46,7 +47,7 @@ exports.CreatePost = async (req, res, next) => {
       date: new Date().toISOString(),
       user: req.user._id,
     },
-
+    keywords,
     resizeMode: resizeMode ? resizeMode : "cover",
   });
   try {
@@ -58,7 +59,6 @@ exports.CreatePost = async (req, res, next) => {
     const deviceTokenArr = allFollowers.followers.map(
       (user) => user.user.deviceToken
     );
-    console.log(deviceTokenArr, "as");
 
     if (deviceTokenArr.length > 0) {
       const messageTitle = req.user.username + " created a new Post";

@@ -31,6 +31,13 @@ const PostSchema = new mongoose.Schema(
     despImage: String,
     youtubeId: String,
     resizeMode: String,
+    keywords: [String],
+    likes: [
+      {
+        user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        created: String,
+      },
+    ],
   },
   {
     timestamps: true,

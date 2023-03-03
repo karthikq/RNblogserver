@@ -34,6 +34,7 @@ route.post(
     .withMessage("this field is required"),
   body("imageUrl").notEmpty().withMessage("this field is required"),
   body("despImage").isString(),
+  body("keywords").isArray(),
   body("youtubeId").isString(),
   body("resizeMode"),
   CreatePost
