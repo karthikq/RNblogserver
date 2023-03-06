@@ -30,7 +30,7 @@ exports.CreatePost = async (req, res, next) => {
   const postcreated_at = new Date().toISOString();
   const postId = nanoid();
   const date = moment().format("MMM Do YY");
-  console.log(keywords,'keywords');
+  console.log(keywords, "keywords");
   const newPost = new Post({
     title,
     description,
@@ -160,7 +160,10 @@ exports.editPost = async (req, res, next) => {
   const loggedUser = req.user.userId;
 
   try {
-    const findPost = await Post.findOne({ postId }).populate("user").exec();
+    const findPost = await Post.findOne({ postId })
+      .populate("user")
+      .populate("likes.user")
+      .exec();
     if (findPost.user.userId === loggedUser) {
       if (findPost) {
         if (req.body.category !== findPost.category.val) {
@@ -185,6 +188,7 @@ exports.editPost = async (req, res, next) => {
           }
         )
           .populate("user")
+          .populate("likes.user")
           .exec();
 
         return res
@@ -213,12 +217,66 @@ exports.getPost = async (req, res) => {
   try {
     const findPost = await Post.findOne({ postId: postId })
       .populate("user")
+      .populate("likes.user")
       .exec();
 
     if (!findPost) {
       return res.status(404).status({ message: "item not found" });
     } else {
       return res.status(200).json(findPost);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+exports.addLike = async (req, res) => {
+  const { postId } = req.params;
+  console.log(postId, "asdasd");
+  try {
+    const findPost = await Post.findOne({ postId })
+      .populate("user")
+      .populate("likes.user")
+      .exec();
+    if (!findPost) {
+      const error = new Error("Post not found");
+      error.statusCode = 404;
+      throw error;
+    }
+    console.log(findPost.likes, "elle");
+    if (findPost.likes?.length > 0) {
+      const checkLikes = findPost.likes?.find((item) => console.log(item));
+      console.log(checkLikes, "checklils");
+      if (checkLikes) {
+        const updatePost = await Post.findOneAndUpdate(
+          { postId },
+          {
+            $pull: {
+              likes: { user: req.user._id },
+            },
+          },
+          { new: true }
+        )
+          .populate("user")
+          .populate("likes.user")
+          .exec();
+
+        return res.status(201).json({ postdata: updatePost });
+      }
+    } else {
+      const updatelikes = await Post.findOneAndUpdate(
+        { postId },
+        {
+          $push: {
+            likes: { user: req.user._id, created: new Date().toISOString() },
+          },
+        },
+        { new: true }
+      )
+        .populate("user")
+        .populate("likes.user")
+        .exec();
+
+      return res.status(201).json({ postdata: updatelikes });
     }
   } catch (error) {
     console.log(error);

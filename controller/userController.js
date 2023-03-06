@@ -38,6 +38,7 @@ exports.addTofav = async (req, res, next) => {
             .json({ message: "removed", userdata: removeUser });
         }
       }
+
       const result = await User.findOneAndUpdate(
         { userId: req.user.userId },
         {

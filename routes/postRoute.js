@@ -5,6 +5,7 @@ const {
   deletePost,
   editPost,
   getPost,
+  addLike,
 } = require("../controller/PostController");
 const { isAuth } = require("../middleware/isAuth");
 const Post = require("../models/Posts");
@@ -12,7 +13,10 @@ const Post = require("../models/Posts");
 const route = express.Router();
 
 route.get("/all", async (req, res, next) => {
-  const allPosts = await Post.find({}).populate("user").exec();
+  const allPosts = await Post.find({})
+    .populate("user")
+    .populate("likes.user")
+    .exec();
 
   return res.status(200).json({ data: allPosts });
 });
@@ -55,5 +59,6 @@ route.patch(
   editPost
 );
 route.get("/:postId", getPost);
+route.patch("/addlike/:postId", isAuth, addLike);
 
 module.exports = route;

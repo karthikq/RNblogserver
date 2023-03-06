@@ -63,6 +63,11 @@ const UserSchema = new mongoose.Schema(
         postId: { type: mongoose.Schema.Types.ObjectId, ref: "Post" },
       },
     ],
+    comments: [
+      {
+        postId: { type: mongoose.Schema.Types.ObjectId, ref: "Post" },
+      },
+    ],
   },
   {
     timestamps: true,
