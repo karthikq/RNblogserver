@@ -35,7 +35,7 @@ exports.loginRoute = async (req, res, next) => {
         }
         const userId = CheckUser.userId;
         const token = jwt.sign({ email, userId }, process.env.JWT_SECRECT, {
-          expiresIn: "24hr",
+          expiresIn: "72hr",
         });
 
         return res.status(200).json({
@@ -103,7 +103,7 @@ exports.singUpRoute = async (req, res, next) => {
     });
     let userdata = await newUser.save();
     const token = jwt.sign({ email, userId }, process.env.JWT_SECRECT, {
-      expiresIn: "24hr",
+      expiresIn: "72hr",
     });
 
     userdata.password = "";
