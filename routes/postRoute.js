@@ -6,6 +6,7 @@ const {
   editPost,
   getPost,
   addLike,
+  addComment,
 } = require("../controller/PostController");
 const { isAuth } = require("../middleware/isAuth");
 const Post = require("../models/Posts");
@@ -16,6 +17,7 @@ route.get("/all", async (req, res, next) => {
   const allPosts = await Post.find({})
     .populate("user")
     .populate("likes.user")
+    .populate("comments.user")
     .exec();
 
   return res.status(200).json({ data: allPosts });
@@ -60,5 +62,6 @@ route.patch(
 );
 route.get("/:postId", getPost);
 route.patch("/addlike/:postId", isAuth, addLike);
+route.patch("/addcomment/:postId", isAuth, addComment);
 
 module.exports = route;

@@ -163,6 +163,7 @@ exports.editPost = async (req, res, next) => {
     const findPost = await Post.findOne({ postId })
       .populate("user")
       .populate("likes.user")
+      .populate("comments.user")
       .exec();
     if (findPost.user.userId === loggedUser) {
       if (findPost) {
@@ -189,8 +190,8 @@ exports.editPost = async (req, res, next) => {
         )
           .populate("user")
           .populate("likes.user")
+          .populate("comments.user")
           .exec();
-
         return res
           .status(200)
           .json({ message: "Post updated", postdata: newupdatedPost });
@@ -218,6 +219,7 @@ exports.getPost = async (req, res) => {
     const findPost = await Post.findOne({ postId: postId })
       .populate("user")
       .populate("likes.user")
+      .populate("comments.user")
       .exec();
 
     if (!findPost) {
@@ -231,21 +233,24 @@ exports.getPost = async (req, res) => {
 };
 exports.addLike = async (req, res) => {
   const { postId } = req.params;
-  console.log(postId, "asdasd");
+
   try {
     const findPost = await Post.findOne({ postId })
       .populate("user")
       .populate("likes.user")
+      .populate("comments.user")
       .exec();
     if (!findPost) {
       const error = new Error("Post not found");
       error.statusCode = 404;
       throw error;
     }
-    console.log(findPost.likes, "elle");
+
     if (findPost.likes?.length > 0) {
-      const checkLikes = findPost.likes?.find((item) => console.log(item));
-      console.log(checkLikes, "checklils");
+      const checkLikes = findPost.likes?.find(
+        (item) => item.user._id.toString() === req.user._id.toString()
+      );
+
       if (checkLikes) {
         const updatePost = await Post.findOneAndUpdate(
           { postId },
@@ -258,6 +263,7 @@ exports.addLike = async (req, res) => {
         )
           .populate("user")
           .populate("likes.user")
+          .populate("comments.user")
           .exec();
 
         return res.status(201).json({ postdata: updatePost });
@@ -274,10 +280,50 @@ exports.addLike = async (req, res) => {
       )
         .populate("user")
         .populate("likes.user")
+        .populate("comments.user")
         .exec();
 
       return res.status(201).json({ postdata: updatelikes });
     }
+  } catch (error) {
+    console.log(error);
+  }
+};
+exports.addComment = async (req, res) => {
+  const { postId } = req.params;
+  const { text } = req.body;
+  console.log(text);
+  try {
+    const findPost = await Post.findOne({ postId })
+      .populate("user")
+      .populate("likes.user")
+      .populate("comments.user")
+      .exec();
+    if (!findPost) {
+      const error = new Error("Post not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const addComment = await Post.findOneAndUpdate(
+      { postId },
+      {
+        $push: {
+          comments: {
+            user: req.user._id,
+            created: new Date().toISOString(),
+            text,
+          },
+        },
+      },
+      { new: true }
+    )
+      .populate("user")
+      .populate("likes.user")
+      .populate("comments.user")
+      .exec();
+
+    return res.status(201).json({ postdata: addComment });
   } catch (error) {
     console.log(error);
   }
